@@ -1,4 +1,9 @@
-import msvcrt, time, types
+import sys, time, types, os
+if(sys.platform == "win32"):
+    import msvcrt
+else:
+    import fcntl, termios, struct
+
 TLoc = 0
 text = ""
 TFlash = 0
@@ -7,6 +12,29 @@ histIdx = 0
 cmd = []
 prevTick = []
 tickRate = 0.1
+
+def kbhit():
+    if(sys.platform == "win32"):
+        return msvcrt.kbhit()
+    return bool(fcntl.ioctl(sys.stdin.fileno(), termios.FIONREAD, struct.pack('I', 0)))
+
+def getch():
+    if(sys.platform == "win32"):
+        return msvcrt.getch()
+    fd = sys.stdin.fileno()
+    # fetch stdin's old flags
+    old_flags = fcntl.fcntl(fd, fcntl.F_GETFL)
+    # set the none-blocking flag 
+    fcntl.fcntl(fd, fcntl.F_SETFL, old_flags | os.O_NONBLOCK)
+    try:
+        ch = sys.stdin.read(1)
+    except:
+        ch = None
+    finally:
+        # resetting stdin to default falgs
+        fcntl.fcntl(fd, fcntl.F_SETFL, old_flags)
+    return ch 
+
 def clear(amount = -1):
     global cmd
     if amount < 0:
@@ -27,11 +55,11 @@ def textSet(newText, newCursorLoc=-1):
 def tick():
     global cmd, TLoc, text, TFlash, hist, histIdx, prevTick, tickRate
     opNum = 0
-    while msvcrt.kbhit():
+    while kbhit():
         TFlash = time.time()
-        c = msvcrt.getch()
+        c = getch()
         if c == b"\xe0": # Processing for special characters
-            c = msvcrt.getch()
+            c = getch()
             try:
                 c = ord(c.decode('utf-8'))
             except:
