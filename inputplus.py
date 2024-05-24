@@ -75,7 +75,7 @@ def tick():
                 if ord(c) == 127:
                     c = "cback"
         opNum += 1
-        if c in [72, 77, 80, 75, 71, 79, "\x1B", "\r", "\b", "\t", 83, "cback", 115, 116]: # All special characters processing
+        if c in [72, 77, 80, 75, 71, 79, "\x1B", "\r", "\n", "\b", "\t", 83, "cback", 115, 116]: # All special characters processing
             if histIdx == 0: # makes a varable (currentText => cText) to operate on
                 cText = text
             else:
@@ -143,7 +143,7 @@ def tick():
                 text = hist[histIdx]
                 histIdx = 0
 
-            if c == "\r": # enter
+            if c in ["\r", "\n"]: # enter
                 cmd.append(("cmd", text))
                 hist.append(text)
                 if len(hist) > 100:
