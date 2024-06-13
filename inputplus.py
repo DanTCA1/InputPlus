@@ -150,9 +150,8 @@ def tick():
                 else:
                     c = queue[1]
                     del(queue[0:2])
-                ctrl = False
+
                 if c == "1":
-                    ctrl = True
                     c = "ctrl" + queue[2]
                     del(queue[0:3])
 
@@ -195,15 +194,15 @@ def tick():
             except:
                 continue
             
+            textReplace = {
+                "\x7f" : "\b",
+                "\x08" : "ctrlBack",
+                127 : "ctrlBack",
+                23 : "ctrlBack"
+            }
             if windows:
-                if ord(c) in [127]:
-                    if ord(c) == 127:
-                        c = "ctrlBack" # (control backspace => ctrlBack)
+                c = textReplace.get(ord(c),c)
             else:
-                linuxReplace = {
-                    "\x7f" : "\b",
-                    "\x08" : "ctrlBack"
-                }
                 c = linuxReplace.get(c, c)
 
         opNum += 1
